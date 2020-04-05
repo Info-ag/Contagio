@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
 {
     public float speed;
     public Transform destination;
+    public LayerMask collisionMask;
 
     // Start is called before the first frame update
     void Start()
@@ -26,22 +27,30 @@ public class PlayerController : MonoBehaviour
 
     private void UpdateDestination()
     {
+        Vector3 movementVector = new Vector3();
         if (Input.GetKey(KeyCode.W))
         {
-            destination.position += new Vector3(0, 1);
+            movementVector = new Vector3(0, 1);
         }
         else if (Input.GetKey(KeyCode.S))
         {
-            destination.position += new Vector3(0, -1);
+            movementVector = new Vector3(0, -1);
         }
 
         if (Input.GetKey(KeyCode.A))
         {
-            destination.position += new Vector3(-1, 0);
+            movementVector = new Vector3(-1, 0);
         }
         else if (Input.GetKey(KeyCode.D))
         {
-            destination.position += new Vector3(1, 0);
+            movementVector = new Vector3(1, 0);
+        }
+
+        movementVector += destination.position;
+        if (!Physics2D.OverlapCircle(movementVector, 0.2f, collisionMask))
+        {
+            // Do update the destination transform if there are obstacles
+            destination.position = movementVector;
         }
     }
 
