@@ -22,6 +22,8 @@ jobs:
       cleanup: false
       deploy_key: deploy_contagio
       keep_history: false
+      name: "Deployment Bot"
+      email: "deploy@travis-ci.org"
       local_dir: ./Builds/WebGL/Contagio/
       on:
         branch: master
