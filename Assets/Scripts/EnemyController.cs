@@ -5,6 +5,7 @@ using UnityEngine;
 public class EnemyController : MonoBehaviour
 {
     public float speed;
+    public MovementMode mode;
     public Transform destination;
     public LayerMask collisionMask;
 
@@ -24,7 +25,15 @@ public class EnemyController : MonoBehaviour
 
         if (player.Ticked)
         {
-            Vector3 movementVector = RandomDirection() + destination.position;
+            Vector3 movementVector = new Vector3();
+            if (mode == MovementMode.random)
+            {
+                movementVector = RandomDirection();
+            }
+            else if (mode == MovementMode.targetingPlayer)
+            {
+                movementVector = TargetedDirection();
+            }
 
             if (!Physics2D.OverlapCircle(movementVector, 0.2f, collisionMask))
             {
@@ -40,6 +49,31 @@ public class EnemyController : MonoBehaviour
         float direction_x = directions[Random.Range(0, directions.Length)];
         float direction_y = directions[Random.Range(0, directions.Length)];
 
-        return new Vector3(direction_x, direction_y);
+        return new Vector3(direction_x, direction_y) + destination.position;
     }
+
+    private Vector3 TargetedDirection()
+    {
+        Vector3 optimalMove = new Vector3();
+        float shortestDistance = float.MaxValue;
+
+        for (int x = -1; x <= 1; ++x)
+        {
+            for (int y = -1; y <= 1; ++y) 
+            {
+                Vector3 movement = new Vector3(x, y) + destination.position;
+                float distance = Vector3.Distance(player.transform.position, movement);
+
+                if (distance < shortestDistance)
+                {
+                    optimalMove = movement;
+                    shortestDistance = distance;
+                }
+            }
+        }
+
+        return optimalMove;
+    }
+
+    public enum MovementMode { random, targetingPlayer };
 }
