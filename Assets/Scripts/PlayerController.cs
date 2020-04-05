@@ -8,10 +8,13 @@ public class PlayerController : MonoBehaviour
     public Transform destination;
     public LayerMask collisionMask;
 
+    public bool Ticked { get; private set; }
+
     // Start is called before the first frame update
     void Start()
     {
         destination.parent = null;
+        Ticked = false;
     }
 
     // Update is called once per frame
@@ -21,37 +24,56 @@ public class PlayerController : MonoBehaviour
 
         if (AtDestination())
         {
-            UpdateDestination();
+            Ticked = UpdateDestination();
+            if (Ticked)
+            {
+                Debug.Log("Ticked");
+            }
+        }
+        else
+        {
+            Ticked = false;
         }
     }
 
-    private void UpdateDestination()
+    private bool UpdateDestination()
     {
-        Vector3 movementVector = new Vector3();
+        Vector3 movementVector = destination.position;
+        bool moved = false;
+
         if (Input.GetKey(KeyCode.W))
         {
-            movementVector = new Vector3(0, 1);
+            movementVector += new Vector3(0, 1);
+            moved = true;
         }
         else if (Input.GetKey(KeyCode.S))
         {
-            movementVector = new Vector3(0, -1);
+            movementVector += new Vector3(0, -1);
+            moved = true;
         }
 
         if (Input.GetKey(KeyCode.A))
         {
-            movementVector = new Vector3(-1, 0);
+            movementVector += new Vector3(-1, 0);
+            moved = true;
         }
         else if (Input.GetKey(KeyCode.D))
         {
-            movementVector = new Vector3(1, 0);
+            movementVector += new Vector3(1, 0);
+            moved = true;
         }
 
-        movementVector += destination.position;
         if (!Physics2D.OverlapCircle(movementVector, 0.2f, collisionMask))
         {
-            // Do update the destination transform if there are obstacles
+            // Do not update the destination transform if there are obstacles
             destination.position = movementVector;
         }
+        else
+        {
+            moved = false;
+        }
+
+        return moved;
     }
 
     public bool AtDestination()
