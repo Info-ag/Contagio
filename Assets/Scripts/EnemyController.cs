@@ -35,7 +35,7 @@ public class EnemyController : MonoBehaviour
                 movementVector = TargetedDirection();
             }
 
-            if (!Physics2D.OverlapCircle(movementVector, 0.2f, collisionMask))
+            if (!Physics2D.OverlapCircle(movementVector, 0.2f, collisionMask) && !DestinationConflict(movementVector))
             {
                 // Do not update the destination transform if there are obstacles
                 destination.position = movementVector;
@@ -73,6 +73,21 @@ public class EnemyController : MonoBehaviour
         }
 
         return optimalMove;
+    }
+
+    // Returns true is another entity wants to move to the destination
+    private bool DestinationConflict(Vector3 tile)
+    {
+        GameObject[] objects = GameObject.FindGameObjectsWithTag("Destination");
+        foreach (var currentObject in objects)
+        {
+            if (currentObject.transform.position.Equals(tile) && !currentObject.Equals(destination.gameObject))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public enum MovementMode { random, targetingPlayer };

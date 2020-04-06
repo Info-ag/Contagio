@@ -63,7 +63,7 @@ public class PlayerController : MonoBehaviour
             moved = true;
         }
 
-        if (!Physics2D.OverlapCircle(movementVector, 0.2f, collisionMask))
+        if (!Physics2D.OverlapCircle(movementVector, 0.2f, collisionMask) && !DestinationConflict(movementVector))
         {
             // Do not update the destination transform if there are obstacles
             destination.position = movementVector;
@@ -79,5 +79,20 @@ public class PlayerController : MonoBehaviour
     public bool AtDestination()
     {
         return Vector3.Distance(transform.position, destination.position) < 0.05;
+    }
+
+    // Returns true is another entity wants to move to the destination
+    private bool DestinationConflict(Vector3 tile)
+    {
+        GameObject[] objects = GameObject.FindGameObjectsWithTag("Destination");
+        foreach (var currentObject in objects)
+        {
+            if (currentObject.transform.position.Equals(tile) && !currentObject.Equals(destination.gameObject))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
