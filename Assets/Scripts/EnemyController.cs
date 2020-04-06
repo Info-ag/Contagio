@@ -5,11 +5,17 @@ using UnityEngine;
 public class EnemyController : MonoBehaviour
 {
     public float speed;
-    public MovementMode mode;
+    public MovementMode infectedMode;
+    public MovementMode healedMode;
     public Transform destination;
     public LayerMask collisionMask;
 
+    public int maxInfection;
+    public int currentInfection;
+    public int reinfectionPerTick;
+
     private PlayerController player;
+    private MovementMode mode;
 
     // Start is called before the first frame update
     void Start()
@@ -22,24 +28,54 @@ public class EnemyController : MonoBehaviour
     void Update()
     {
         transform.position = Vector3.MoveTowards(transform.position, destination.position, speed * Time.deltaTime);
+        gameObject.GetComponent<SpriteRenderer>().color = Color.Lerp(Color.green, Color.white, (float)currentInfection / (float)maxInfection);
 
         if (player.Ticked)
         {
-            Vector3 movementVector = new Vector3();
-            if (mode == MovementMode.random)
-            {
-                movementVector = RandomDirection();
-            }
-            else if (mode == MovementMode.targetingPlayer)
-            {
-                movementVector = TargetedDirection();
-            }
+            UpdateInfection();
+            UpdatePosition();
+        }
+    }
 
-            if (!Physics2D.OverlapCircle(movementVector, 0.2f, collisionMask) && !DestinationConflict(movementVector))
-            {
-                // Do not update the destination transform if there are obstacles
-                destination.position = movementVector;
-            }
+    // Heals the enemy. Set reinfection to 0 for permanent healing. Returns the amount of infection healed. Enemy cannot be healed unless at full infection.
+    public int Heal(int reinfection)
+    {
+        if (currentInfection != maxInfection)
+        {
+            return 0;
+        }
+
+        currentInfection = 0;
+        reinfectionPerTick = reinfection;
+        return maxInfection;
+    }
+
+    private void UpdateInfection()
+    {
+        currentInfection = Mathf.Clamp(currentInfection + reinfectionPerTick, 0, maxInfection);
+        mode = (currentInfection < maxInfection) ? healedMode : infectedMode;
+    }
+
+    private void UpdatePosition()
+    {
+        Vector3 movementVector = new Vector3();
+        if (mode == MovementMode.random)
+        {
+            movementVector = RandomDirection();
+        }
+        else if (mode == MovementMode.targetingPlayer)
+        {
+            movementVector = TargetedDirection();
+        }
+        else if (mode == MovementMode.frozen)
+        {
+            movementVector = transform.position;
+        }
+
+        if (!Physics2D.OverlapCircle(movementVector, 0.2f, collisionMask) && !DestinationConflict(movementVector))
+        {
+            // Do not update the destination transform if there are obstacles
+            destination.position = movementVector;
         }
     }
 
@@ -75,7 +111,7 @@ public class EnemyController : MonoBehaviour
         return optimalMove;
     }
 
-    // Returns true is another entity wants to move to the destination
+    // Returns true if another entity wants to move to the destination
     private bool DestinationConflict(Vector3 tile)
     {
         GameObject[] objects = GameObject.FindGameObjectsWithTag("Destination");
@@ -90,5 +126,5 @@ public class EnemyController : MonoBehaviour
         return false;
     }
 
-    public enum MovementMode { random, targetingPlayer };
+    public enum MovementMode { frozen, random, targetingPlayer };
 }

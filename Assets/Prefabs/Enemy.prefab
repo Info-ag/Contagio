@@ -123,11 +123,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 6
-  mode: 0
+  infectedMode: 1
+  healedMode: 0
   destination: {fileID: 591734580830442881}
   collisionMask:
     serializedVersion: 2
     m_Bits: 256
+  maxInfection: 100
+  currentInfection: 100
+  reinfectionPerTick: 0
 --- !u!1 &591734580830442880
 GameObject:
   m_ObjectHideFlags: 0

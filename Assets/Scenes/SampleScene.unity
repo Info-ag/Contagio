@@ -221,6 +221,8 @@ MonoBehaviour:
   collisionMask:
     serializedVersion: 2
     m_Bits: 256
+  syringeLevel: 1
+  syringeBaseEffectivity: 10
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -420,7 +422,27 @@ PrefabInstance:
     - target: {fileID: 591734579602062119, guid: 27744d217716246398bf09baca87faa6,
         type: 3}
       propertyPath: mode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 591734579602062119, guid: 27744d217716246398bf09baca87faa6,
+        type: 3}
+      propertyPath: infectedMode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 591734579602062119, guid: 27744d217716246398bf09baca87faa6,
+        type: 3}
+      propertyPath: healedMode
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 591734579602062119, guid: 27744d217716246398bf09baca87faa6,
+        type: 3}
+      propertyPath: maxInfection
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 591734579602062119, guid: 27744d217716246398bf09baca87faa6,
+        type: 3}
+      propertyPath: currentInfection
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 591734580830442880, guid: 27744d217716246398bf09baca87faa6,
         type: 3}
@@ -2540,6 +2562,31 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 591734579602062119, guid: 27744d217716246398bf09baca87faa6,
+        type: 3}
+      propertyPath: permanentlyHealed
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 591734579602062119, guid: 27744d217716246398bf09baca87faa6,
+        type: 3}
+      propertyPath: mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 591734579602062119, guid: 27744d217716246398bf09baca87faa6,
+        type: 3}
+      propertyPath: infectedMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 591734579602062119, guid: 27744d217716246398bf09baca87faa6,
+        type: 3}
+      propertyPath: maxInfection
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 591734579602062119, guid: 27744d217716246398bf09baca87faa6,
+        type: 3}
+      propertyPath: currentInfection
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 591734580830442880, guid: 27744d217716246398bf09baca87faa6,
         type: 3}

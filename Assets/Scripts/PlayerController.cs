@@ -8,6 +8,9 @@ public class PlayerController : MonoBehaviour
     public Transform destination;
     public LayerMask collisionMask;
 
+    public int syringeLevel;
+    public int syringeBaseEffectivity;
+
     public bool Ticked { get; private set; }
 
     // Start is called before the first frame update
@@ -63,17 +66,36 @@ public class PlayerController : MonoBehaviour
             moved = true;
         }
 
+        // Do not update the destination transform if there are obstacles
         if (!Physics2D.OverlapCircle(movementVector, 0.2f, collisionMask) && !DestinationConflict(movementVector))
         {
-            // Do not update the destination transform if there are obstacles
             destination.position = movementVector;
         }
+        // Check if the obstacle is a healable enemy
         else
         {
-            moved = false;
+            moved = CheckAndHeal(movementVector);
         }
 
         return moved;
+    }
+
+    // Check if there is an enemy that could be healed at a given tile, heal it if true, return false if there is no enemy
+    private bool CheckAndHeal(Vector3 tile)
+    {
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject enemy in enemies)
+        {
+            if (enemy.transform.position == tile)
+            {
+                EnemyController controller = enemy.GetComponent<EnemyController>();
+                int healedAmount = controller.Heal(syringeBaseEffectivity / syringeLevel);
+
+                return healedAmount > 0;
+            }
+        }
+
+        return false;
     }
 
     public bool AtDestination()
@@ -81,7 +103,7 @@ public class PlayerController : MonoBehaviour
         return Vector3.Distance(transform.position, destination.position) < 0.05;
     }
 
-    // Returns true is another entity wants to move to the destination
+    // Returns true if another entity wants to move to the destination
     private bool DestinationConflict(Vector3 tile)
     {
         GameObject[] objects = GameObject.FindGameObjectsWithTag("Destination");
