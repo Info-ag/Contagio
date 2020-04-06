@@ -132,6 +132,7 @@ MonoBehaviour:
   maxInfection: 100
   currentInfection: 100
   reinfectionPerTick: 0
+  infectionStrenght: 0.05
 --- !u!1 &591734580830442880
 GameObject:
   m_ObjectHideFlags: 0

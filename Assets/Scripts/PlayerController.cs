@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -10,6 +11,12 @@ public class PlayerController : MonoBehaviour
 
     public int syringeLevel;
     public int syringeBaseEffectivity;
+
+    public int maxInfection;
+    public int currentInfection;
+    public int collectedSamples;
+
+    public UIController uiController;
 
     public bool Ticked { get; private set; }
 
@@ -24,6 +31,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         transform.position = Vector3.MoveTowards(transform.position, destination.position, speed * Time.deltaTime);
+        gameObject.GetComponent<SpriteRenderer>().color = Color.Lerp(Color.white, Color.red, (float)currentInfection / (float)maxInfection);
 
         if (AtDestination())
         {
@@ -91,11 +99,27 @@ public class PlayerController : MonoBehaviour
                 EnemyController controller = enemy.GetComponent<EnemyController>();
                 int healedAmount = controller.Heal(syringeBaseEffectivity / syringeLevel);
 
+                collectedSamples += healedAmount / 100;
+                uiController.Samples = collectedSamples;
+
                 return healedAmount > 0;
             }
         }
 
         return false;
+    }
+
+    // Get infected with a certain strength as a percentage of the maximum infection
+    public void Infect(float strength)
+    {
+        currentInfection += Mathf.RoundToInt(strength * maxInfection);
+        uiController.Infection = (float)currentInfection / (float)maxInfection;
+
+        // Game over
+        if (currentInfection >= maxInfection)
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
     }
 
     public bool AtDestination()

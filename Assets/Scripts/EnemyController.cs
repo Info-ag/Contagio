@@ -14,6 +14,8 @@ public class EnemyController : MonoBehaviour
     public int currentInfection;
     public int reinfectionPerTick;
 
+    public float infectionStrenght;
+
     private PlayerController player;
     private MovementMode mode;
 
@@ -34,6 +36,7 @@ public class EnemyController : MonoBehaviour
         {
             UpdateInfection();
             UpdatePosition();
+            InfectPlayer();
         }
     }
 
@@ -54,6 +57,14 @@ public class EnemyController : MonoBehaviour
     {
         currentInfection = Mathf.Clamp(currentInfection + reinfectionPerTick, 0, maxInfection);
         mode = (currentInfection < maxInfection) ? healedMode : infectedMode;
+    }
+
+    private void InfectPlayer()
+    {
+        if (Vector3.Distance(destination.position, player.destination.position) <= 1f && currentInfection == maxInfection)
+        {
+            player.Infect(infectionStrenght);
+        }
     }
 
     private void UpdatePosition()
