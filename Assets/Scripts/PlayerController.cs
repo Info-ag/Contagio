@@ -209,7 +209,7 @@ public class PlayerController : MonoBehaviour
             SceneManager.MoveGameObjectToScene(destination.gameObject, SceneManager.GetActiveScene());
 
             // Reset the game
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            SceneManager.LoadScene("GameOver");
         }
     }
 
