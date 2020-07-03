@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,6 +9,7 @@ public class PlayerController : MonoBehaviour
 {
     public float speed;
     public Transform destination;
+    public bool moveImmediately;
     public LayerMask collisionMask;
 
     public int syringeLevel;
@@ -18,7 +21,34 @@ public class PlayerController : MonoBehaviour
 
     public UIController uiController;
 
+    // Set to -1 for no destination door
+    public int destinationDoor = -1;
+
     public bool Ticked { get; private set; }
+
+    private void Awake()
+    {
+        // Keep player data between scenes
+        DontDestroyOnLoad(gameObject);
+    }
+
+    private void OnEnable()
+    {
+        // Add the callback
+        SceneManager.sceneLoaded += OnLevelFinishedLoading;
+    }
+
+    private void OnDisable()
+    {
+        // Remove the callback when not needed anymore
+        SceneManager.sceneLoaded -= OnLevelFinishedLoading;
+    }
+
+    private void OnLevelFinishedLoading(Scene scene, LoadSceneMode mode)
+    {
+        // Refresh the UI Controller reference
+        uiController = GameObject.FindGameObjectWithTag("UIController").GetComponent<UIController>();
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -30,8 +60,8 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position = Vector3.MoveTowards(transform.position, destination.position, speed * Time.deltaTime);
-        gameObject.GetComponent<SpriteRenderer>().color = Color.Lerp(Color.white, Color.red, (float)currentInfection / (float)maxInfection);
+        UpdateMovement();
+        UpdateUI();
 
         if (AtDestination())
         {
@@ -44,6 +74,27 @@ public class PlayerController : MonoBehaviour
         else
         {
             Ticked = false;
+        }
+    }
+
+    private void UpdateUI()
+    {
+        gameObject.GetComponent<SpriteRenderer>().color = Color.Lerp(Color.white, Color.red, (float)currentInfection / (float)maxInfection);
+
+        uiController.Samples = collectedSamples;
+        uiController.Infection = (float)currentInfection / (float)maxInfection;
+    }
+
+    private void UpdateMovement()
+    {
+        if (moveImmediately)
+        {
+            transform.position = destination.position;
+            moveImmediately = false;
+        }
+        else
+        {
+            transform.position = Vector3.MoveTowards(transform.position, destination.position, speed * Time.deltaTime);
         }
     }
 
@@ -79,45 +130,85 @@ public class PlayerController : MonoBehaviour
         {
             destination.position = movementVector;
         }
-        // Check if the obstacle is a healable enemy
+        // Check if the obstacle is a healable enemy or a door
         else
         {
-            moved = CheckAndHeal(movementVector);
+            moved = CheckEnemyAndHeal(movementVector) || CheckDoor(movementVector);
         }
 
         return moved;
     }
 
-    // Check if there is an enemy that could be healed at a given tile, heal it if true, return false if there is no enemy
-    private bool CheckAndHeal(Vector3 tile)
+    private GameObject[] ObjectsAtTileWithTag(string tag, Vector3 tile)
     {
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        foreach (GameObject enemy in enemies)
+        List<GameObject> results = new List<GameObject>();
+
+        GameObject[] taggedObjects = GameObject.FindGameObjectsWithTag(tag);
+        foreach (GameObject taggedObject in taggedObjects)
         {
-            if (enemy.transform.position == tile)
+            if (taggedObject.transform.position == tile)
             {
-                EnemyController controller = enemy.GetComponent<EnemyController>();
-                int healedAmount = controller.Heal(syringeBaseEffectivity / syringeLevel);
-
-                collectedSamples += healedAmount / 100;
-                uiController.Samples = collectedSamples;
-
-                return healedAmount > 0;
+                results.Add(taggedObject);
             }
         }
 
-        return false;
+        return results.ToArray();
+    }
+
+    // Check if there is a door at the destination; move though it if true
+    private bool CheckDoor(Vector3 tile)
+    {
+        GameObject[] doors = ObjectsAtTileWithTag("Door", tile);
+
+        if (doors.Count() == 0)
+        {
+            return false;
+        }
+
+        DoorController door = doors[0].GetComponent<DoorController>();
+        destinationDoor = door.destinationID;
+        SceneManager.LoadScene(door.destinationScene);
+
+        return true;
+    }
+
+    // Check if there is an enemy that could be healed at a given tile, heal it if true, return false if there is no enemy
+    private bool CheckEnemyAndHeal(Vector3 tile)
+    {
+        GameObject[] enemies = ObjectsAtTileWithTag("Enemy", tile);
+
+        if (enemies.Count() == 0)
+        {
+            return false;
+        }
+        
+        EnemyController controller = enemies[0].GetComponent<EnemyController>();
+        int healedAmount = controller.Heal(syringeBaseEffectivity / syringeLevel);
+
+        collectedSamples += healedAmount / 100;
+        UpdateUI();
+
+        return healedAmount > 0;
     }
 
     // Get infected with a certain strength as a percentage of the maximum infection
     public void Infect(float strength)
     {
         currentInfection += Mathf.RoundToInt(strength * maxInfection);
-        uiController.Infection = (float)currentInfection / (float)maxInfection;
+        UpdateUI();
 
-        // Game over
+        CheckGameOver();
+    }
+
+    private void CheckGameOver()
+    {
         if (currentInfection >= maxInfection)
         {
+            // Disable the "DontDestroyOnLoad" flag
+            SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
+            SceneManager.MoveGameObjectToScene(destination.gameObject, SceneManager.GetActiveScene());
+
+            // Reset the game
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
     }
