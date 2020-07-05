@@ -26,6 +26,8 @@ public class PlayerController : MonoBehaviour
 
     public bool Ticked { get; private set; }
 
+    private float rotation = 0;
+
     private void Awake()
     {
         // Keep player data between scenes
@@ -96,6 +98,14 @@ public class PlayerController : MonoBehaviour
         {
             transform.position = Vector3.MoveTowards(transform.position, destination.position, speed * Time.deltaTime);
         }
+
+        if (transform.position != destination.position)
+        {
+            Vector2 rotationVector = destination.position - transform.position;
+            rotation = Quaternion.LookRotation(Vector3.forward, rotationVector).eulerAngles.z;
+        }
+
+        transform.rotation = Quaternion.Euler(0, 0, rotation);
     }
 
     private bool UpdateDestination()
@@ -103,23 +113,23 @@ public class PlayerController : MonoBehaviour
         Vector3 movementVector = destination.position;
         bool moved = false;
 
-        if (Input.GetKey(KeyCode.W))
+        if (Input.GetKeyDown(KeyCode.W))
         {
             movementVector += new Vector3(0, 1);
             moved = true;
         }
-        else if (Input.GetKey(KeyCode.S))
+        else if (Input.GetKeyDown(KeyCode.S))
         {
             movementVector += new Vector3(0, -1);
             moved = true;
         }
 
-        if (Input.GetKey(KeyCode.A))
+        if (Input.GetKeyDown(KeyCode.A))
         {
             movementVector += new Vector3(-1, 0);
             moved = true;
         }
-        else if (Input.GetKey(KeyCode.D))
+        else if (Input.GetKeyDown(KeyCode.D))
         {
             movementVector += new Vector3(1, 0);
             moved = true;

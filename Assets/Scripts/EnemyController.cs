@@ -87,6 +87,9 @@ public class EnemyController : MonoBehaviour
         {
             // Do not update the destination transform if there are obstacles
             destination.position = movementVector;
+
+            Vector2 rotationVector = destination.position - transform.position;
+            transform.rotation = Quaternion.LookRotation(Vector3.forward, rotationVector);
         }
     }
 
