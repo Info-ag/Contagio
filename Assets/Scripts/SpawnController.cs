@@ -37,6 +37,7 @@ public class SpawnController : MonoBehaviour
                 if (doorController.doorID == playerController.destinationDoor)
                 {
                     newPosition = doorController.spawnpoint.transform.position;
+                    doorController.playerSpawnDoor = true;
                     doorFound = true;
                 }
             }

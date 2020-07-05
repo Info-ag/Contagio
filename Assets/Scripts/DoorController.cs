@@ -21,6 +21,9 @@ public class DoorController : MonoBehaviour
     public int destinationID;
     public string destinationScene;
 
+    // True if player spawned at this door
+    public bool playerSpawnDoor;
+
     private PlayerController player;
     private Animator doorAnimator;
 
@@ -37,12 +40,14 @@ public class DoorController : MonoBehaviour
     void Update()
     {
         float playerDistance = Vector2.Distance(transform.position, player.transform.position);
-        UpdateAnimator(playerDistance);
-    }
-
-    private void UpdateAnimator(float distance)
-    {
-        bool playerNear = distance < openingRadius;
+        bool playerNear = playerDistance < openingRadius;
         doorAnimator.SetBool("player_near", playerNear);
+
+        // Open the door immediately
+        if (playerNear && playerSpawnDoor)
+        {
+            doorAnimator.Play("door_open");
+            playerSpawnDoor = false;
+        }
     }
 }
