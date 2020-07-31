@@ -69,7 +69,7 @@ public class PlayerController : MonoBehaviour
 
         if (AtDestination())
         {
-            Ticked = UpdateDestination();
+            Ticked = UpdateInput();
             if (Ticked)
             {
                 Debug.Log("Ticked");
@@ -109,6 +109,19 @@ public class PlayerController : MonoBehaviour
         }
 
         transform.rotation = Quaternion.Euler(0, 0, rotation);
+    }
+
+    private bool UpdateInput()
+    {
+        // Self-heal
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            return SelfHeal();
+        }
+        else
+        {
+            return UpdateDestination();
+        }
     }
 
     private bool UpdateDestination()
@@ -227,6 +240,22 @@ public class PlayerController : MonoBehaviour
         UpdateUI();
 
         CheckGameOver();
+    }
+
+    // Heal yourself with one cure, returns true if successful
+    private bool SelfHeal()
+    {
+        if (synthesizedCure > 0 && currentInfection > 0)
+        {
+            currentInfection = 0;
+            synthesizedCure -= 1;
+
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     private void CheckGameOver()
