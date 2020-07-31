@@ -417,8 +417,10 @@ MonoBehaviour:
     m_LineSpacing: 1
   m_Text: 'Game Over!
 
+    Press space to restart the game
 
-    Press space to restart the game'
+
+'
 --- !u!222 &1782486494
 CanvasRenderer:
   m_ObjectHideFlags: 0

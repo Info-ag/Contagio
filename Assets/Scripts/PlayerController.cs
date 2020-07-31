@@ -27,6 +27,7 @@ public class PlayerController : MonoBehaviour
     public int destinationDoor = -1;
 
     public bool Ticked { get; private set; }
+    public int currentTick;
 
     private float rotation = 0;
 
@@ -50,8 +51,11 @@ public class PlayerController : MonoBehaviour
 
     private void OnLevelFinishedLoading(Scene scene, LoadSceneMode mode)
     {
-        // Refresh the UI Controller reference
-        uiController = GameObject.FindGameObjectWithTag("UIController").GetComponent<UIController>();
+        if (scene.name != "GameOver")
+        {
+            // Refresh the UI Controller reference
+            uiController = GameObject.FindGameObjectWithTag("UIController").GetComponent<UIController>();
+        }
     }
 
     // Start is called before the first frame update
@@ -72,6 +76,7 @@ public class PlayerController : MonoBehaviour
             Ticked = UpdateInput();
             if (Ticked)
             {
+                currentTick += 1;
                 Debug.Log("Ticked");
             }
         }
@@ -262,10 +267,6 @@ public class PlayerController : MonoBehaviour
     {
         if (currentInfection >= maxInfection)
         {
-            // Disable the "DontDestroyOnLoad" flag
-            SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
-            SceneManager.MoveGameObjectToScene(destination.gameObject, SceneManager.GetActiveScene());
-
             // Reset the game
             SceneManager.LoadScene("GameOver");
         }
