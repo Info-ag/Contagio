@@ -11,9 +11,9 @@ public class UIController : MonoBehaviour
     private int samples;
 
     public float Infection { get => infection; set { infection = value; UpdateText(); } }
-    public float Cure { get => cure; set { cure = value; UpdateText(); } }
     public float Fear { get => fear; set { fear = value; UpdateText(); } }
     public int Samples { get => samples; set { samples = value; UpdateText(); } }
+    public float Cure { get => cure; set { cure = value; UpdateText(); } }
 
     // Start is called before the first frame update
     void Start()
@@ -29,8 +29,8 @@ public class UIController : MonoBehaviour
     private string FormatText()
     {
         return FormatLine("green", "Infection", Infection) + "\n" +
-               FormatLine("darkblue", "Cure", Cure) + "\n" +
                FormatLine("brown", "Fear", Fear) + "\n" +
+               FormatLine("darkblue", "Cure", Cure, false) + "\n" +
                FormatLine("teal", "Samples", samples, false);
     }
 

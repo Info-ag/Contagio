@@ -8,6 +8,7 @@ TagManager:
   - Destination
   - Door
   - UIController
+  - Interactable
   layers:
   - Default
   - TransparentFX

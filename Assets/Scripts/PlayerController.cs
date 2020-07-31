@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Assets.Scripts;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -18,6 +19,7 @@ public class PlayerController : MonoBehaviour
     public int maxInfection;
     public int currentInfection;
     public int collectedSamples;
+    public int synthesizedCure;
 
     public UIController uiController;
 
@@ -85,6 +87,7 @@ public class PlayerController : MonoBehaviour
 
         uiController.Samples = collectedSamples;
         uiController.Infection = (float)currentInfection / (float)maxInfection;
+        uiController.Cure = synthesizedCure;
     }
 
     private void UpdateMovement()
@@ -143,7 +146,7 @@ public class PlayerController : MonoBehaviour
         // Check if the obstacle is a healable enemy or a door
         else
         {
-            moved = CheckEnemyAndHeal(movementVector) || CheckDoor(movementVector);
+            moved = CheckEnemyAndHeal(movementVector) || CheckDoor(movementVector) || CheckInteractable(movementVector);
         }
 
         return moved;
@@ -180,6 +183,22 @@ public class PlayerController : MonoBehaviour
         SceneManager.LoadScene(door.destinationScene);
 
         return true;
+    }
+
+    // Check if there is an interactable person or object at the destination
+    private bool CheckInteractable(Vector3 tile)
+    {
+        GameObject[] interactables = ObjectsAtTileWithTag("Interactable", tile);
+
+        if (interactables.Count() == 0)
+        {
+            return false;
+        }
+        else
+        {
+            IInteractable controller = interactables[0].GetComponent<IInteractable>();
+            return controller.Interact(this);
+        }
     }
 
     // Check if there is an enemy that could be healed at a given tile, heal it if true, return false if there is no enemy
